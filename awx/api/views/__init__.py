@@ -4350,3 +4350,48 @@ class WorkflowApprovalDeny(RetrieveAPIView):
             return Response({"error": _("This workflow step has already been approved or denied.")}, status=status.HTTP_400_BAD_REQUEST)
         obj.deny(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResourceStateView(GenericAPIView):
+    name = _("Resource State")
+    model = models.ResourceState
+    serializer_class = serializers.ResourceStateSerializer
+
+    def read_workspace_from_request(self, request):
+        return request.query_params.get('workspace', 'default')
+
+    def get_existing_resource_state(self, request):
+        existing_resource_state = self.model.objects.filter(workspace=self.read_workspace_from_request(request))
+        if existing_resource_state.count() > 0:
+            return existing_resource_state[0]
+        return None
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_existing_resource_state(request)
+        if not obj:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(obj.display_state())
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_existing_resource_state(request)
+        if not obj:
+            workspace = self.read_workspace_from_request(request)
+            obj = self.model(workspace=workspace, state=request.data)
+            obj.save()
+        else:
+            obj.state = request.data
+            obj.save(update_fields=['state'])
+        return Response({}, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_existing_resource_state(request)
+        if not obj:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if obj.state.get("resources") and bool(request.query_params.get('force_delete_non_empty', 'false')):
+            return Response(
+                {"error": _("state file contains references to some existing, add 'force_delete_non_empty=true' to force deletion.")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        obj.state.update({"resources": []})
+        obj.save(update_fields=['state'])
+        return Response({}, status=status.HTTP_200_OK)
