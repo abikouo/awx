@@ -11,7 +11,7 @@ from awx.api.views import (
 
 urls = [
     re_path(r'^$', StateList.as_view(), name='state_list'),
-    re_path(r'^(?P<pk>[0-9]+)/$', StateDetail.as_view(), name='state_detail'),
+    re_path(r'^(?P<pk>[0-9]+)/$', StateDetail.as_view(), name='state_view'),
 ]
 
 __all__ = ['urls']
