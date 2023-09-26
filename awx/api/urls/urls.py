@@ -82,6 +82,7 @@ from .instance_group import urls as instance_group_urls
 from .oauth2 import urls as oauth2_urls
 from .oauth2_root import urls as oauth2_root_urls
 from .workflow_approval_template import urls as workflow_approval_template_urls
+from .state import urls as state_urls
 from .workflow_approval import urls as workflow_approval_urls
 from .analytics import urls as analytics_urls
 
@@ -153,6 +154,7 @@ v2_urls = [
     re_path(r'^bulk/$', BulkView.as_view(), name='bulk'),
     re_path(r'^bulk/host_create/$', BulkHostCreateView.as_view(), name='bulk_host_create'),
     re_path(r'^bulk/job_launch/$', BulkJobLaunchView.as_view(), name='bulk_job_launch'),
+    re_path(r'^state/', include(state_urls)),
 ]
 
 

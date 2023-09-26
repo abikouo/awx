@@ -4350,3 +4350,39 @@ class WorkflowApprovalDeny(RetrieveAPIView):
             return Response({"error": _("This workflow step has already been approved or denied.")}, status=status.HTTP_400_BAD_REQUEST)
         obj.deny(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class StateList(ListAPIView):
+    model = models.State
+    serializer_class = serializers.StateListSerializer
+
+    def get(self, request, *args, **kwargs):
+        return super(StateList, self).get(request, *args, **kwargs)
+
+
+class StateDetail(GenericAPIView):
+    name = _("State")
+    model = models.State
+    serializer_class = serializers.StateSerializer
+
+    def get_existing_resource_state(self, request):
+        existing_resource_state = self.model.objects.filter(workspace=self.read_workspace_from_request(request))
+        if existing_resource_state.count() > 0:
+            return existing_resource_state[0]
+        return None
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        return Response(obj.display_state(), status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object()
+        obj.terraform_state = request.data
+        obj.save(update_fields=['terraform_state'])
+        return Response({}, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        obj.terraform_state = {}
+        obj.save(update_fields=['terraform_state'])
+        return Response({}, status=status.HTTP_200_OK)
