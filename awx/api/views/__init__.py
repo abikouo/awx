@@ -4352,28 +4352,28 @@ class WorkflowApprovalDeny(RetrieveAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ResourceStateView(GenericAPIView):
-    name = _("Resource State")
-    model = models.ResourceState
-    serializer_class = serializers.ResourceStateSerializer
+class StateView(GenericAPIView):
+    name = _("State")
+    model = models.State
+    serializer_class = serializers.StateSerializer
 
     def read_workspace_from_request(self, request):
         return request.query_params.get('workspace', 'default')
 
-    def get_existing_resource_state(self, request):
-        existing_resource_state = self.model.objects.filter(workspace=self.read_workspace_from_request(request))
-        if existing_resource_state.count() > 0:
-            return existing_resource_state[0]
+    def get_object(self, request):
+        obj = self.model.objects.filter(workspace=self.read_workspace_from_request(request))
+        if obj.count() > 0:
+            return obj[0]
         return None
 
     def get(self, request, *args, **kwargs):
-        obj = self.get_existing_resource_state(request)
+        obj = self.get_object(request)
         if not obj:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(obj.display_state())
 
     def post(self, request, *args, **kwargs):
-        obj = self.get_existing_resource_state(request)
+        obj = self.get_object(request)
         if not obj:
             workspace = self.read_workspace_from_request(request)
             obj = self.model(workspace=workspace, state=request.data)
@@ -4384,7 +4384,7 @@ class ResourceStateView(GenericAPIView):
         return Response({}, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
-        obj = self.get_existing_resource_state(request)
+        obj = self.get_object(request)
         if not obj:
             return Response(status=status.HTTP_404_NOT_FOUND)
         if obj.state.get("resources") and bool(request.query_params.get('force_delete_non_empty', 'false')):

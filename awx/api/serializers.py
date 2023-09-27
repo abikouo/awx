@@ -97,7 +97,7 @@ from awx.main.models import (
     WorkflowJobTemplateNode,
     StdoutMaxBytesExceeded,
     CLOUD_INVENTORY_SOURCES,
-    ResourceState,
+    State,
 )
 from awx.main.models.base import VERBOSITY_CHOICES, NEW_JOB_TYPE_CHOICES
 from awx.main.models.rbac import get_roles_on_resource, role_summary_fields_generator
@@ -6003,9 +6003,9 @@ class ActivityStreamSerializer(BaseSerializer):
         return summary_fields
 
 
-class ResourceStateSerializer(BaseSerializer):
+class StateSerializer(BaseSerializer):
     class Meta:
-        model = ResourceState
+        model = State
         fields = (
             '*',
             "workspace",

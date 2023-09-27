@@ -31,7 +31,7 @@ from awx.api.views import (
     ApplicationOAuth2TokenList,
     OAuth2ApplicationDetail,
     HostMetricSummaryMonthlyList,
-    ResourceStateView,
+    StateView,
 )
 
 from awx.api.views.bulk import (
@@ -154,7 +154,7 @@ v2_urls = [
     re_path(r'^bulk/$', BulkView.as_view(), name='bulk'),
     re_path(r'^bulk/host_create/$', BulkHostCreateView.as_view(), name='bulk_host_create'),
     re_path(r'^bulk/job_launch/$', BulkJobLaunchView.as_view(), name='bulk_job_launch'),
-    re_path(r'^resource_state/$', ResourceStateView.as_view(), name='resource_state_view'),
+    re_path(r'^state/$', StateView.as_view(), name='state_view'),
 ]
 
 
