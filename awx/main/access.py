@@ -58,6 +58,7 @@ from awx.main.models import (
     ProjectUpdateEvent,
     Role,
     Schedule,
+    State,
     SystemJob,
     SystemJobEvent,
     SystemJobTemplate,
@@ -2947,6 +2948,21 @@ class WorkflowApprovalTemplateAccess(BaseAccess):
 
     def filtered_queryset(self):
         return self.model.objects.filter(workflowjobtemplatenodes__workflow_job_template__in=WorkflowJobTemplate.accessible_pk_qs(self.user, 'read_role'))
+
+
+class StateAccess(BaseAccess):
+    """
+    TBD
+    """
+
+    model = State
+    prefetch_related = ()
+
+    def can_use(self, obj):
+        return True
+
+    def filtered_queryset(self):
+        return self.model.objects.all()
 
 
 for cls in BaseAccess.__subclasses__():

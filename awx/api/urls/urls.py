@@ -31,7 +31,6 @@ from awx.api.views import (
     ApplicationOAuth2TokenList,
     OAuth2ApplicationDetail,
     HostMetricSummaryMonthlyList,
-    ResourceStateView,
 )
 
 from awx.api.views.bulk import (
@@ -85,6 +84,7 @@ from .oauth2_root import urls as oauth2_root_urls
 from .workflow_approval_template import urls as workflow_approval_template_urls
 from .workflow_approval import urls as workflow_approval_urls
 from .analytics import urls as analytics_urls
+from .state import urls as state_urls
 
 v2_urls = [
     re_path(r'^$', ApiV2RootView.as_view(), name='api_v2_root_view'),
@@ -154,7 +154,7 @@ v2_urls = [
     re_path(r'^bulk/$', BulkView.as_view(), name='bulk'),
     re_path(r'^bulk/host_create/$', BulkHostCreateView.as_view(), name='bulk_host_create'),
     re_path(r'^bulk/job_launch/$', BulkJobLaunchView.as_view(), name='bulk_job_launch'),
-    re_path(r'^resource_state/$', ResourceStateView.as_view(), name='resource_state_view'),
+    re_path(r'^state/', include(state_urls)),
 ]
 
 

@@ -84,8 +84,8 @@ from awx.main.models.workflow import (  # noqa
     WorkflowApproval,
     WorkflowApprovalTemplate,
 )
-from awx.main.models.resource_state import (  # noqa
-    ResourceState,
+from awx.main.models.state import (  # noqa
+    State,
 )
 from awx.api.versioning import reverse
 from awx.main.models.oauth import OAuth2AccessToken, OAuth2Application  # noqa
