@@ -4352,46 +4352,25 @@ class WorkflowApprovalDeny(RetrieveAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class StateView(GenericAPIView):
+class StateList(ListCreateAPIView):
+    model = models.State
+    serializer_class = serializers.StateSerializer
+
+
+class StateView(RetrieveUpdateDestroyAPIView):
     name = _("State")
     model = models.State
     serializer_class = serializers.StateSerializer
 
-    def read_workspace_from_request(self, request):
-        return request.query_params.get('workspace', 'default')
-
-    def get_object(self, request):
-        obj = self.model.objects.filter(workspace=self.read_workspace_from_request(request))
-        if obj.count() > 0:
-            return obj[0]
-        return None
-
     def get(self, request, *args, **kwargs):
-        obj = self.get_object(request)
-        if not obj:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        obj = self.get_object()
         return Response(obj.display_state())
 
     def post(self, request, *args, **kwargs):
-        obj = self.get_object(request)
-        if not obj:
-            workspace = self.read_workspace_from_request(request)
-            obj = self.model(workspace=workspace, state=request.data)
-            obj.save()
-        else:
-            obj.state = request.data
-            obj.save(update_fields=['state'])
-        return Response({}, status=status.HTTP_200_OK)
+        obj = self.get_object()
+        obj.state = request.data
+        obj.save(update_fields=['state', 'modified'])
+        return Response({"pk": obj.pk}, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
-        obj = self.get_object(request)
-        if not obj:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        if obj.state.get("resources") and bool(request.query_params.get('force_delete_non_empty', 'false')):
-            return Response(
-                {"error": _("state file contains references to some existing, add 'force_delete_non_empty=true' to force deletion.")},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        obj.state.update({"resources": []})
-        obj.save(update_fields=['state'])
-        return Response({}, status=status.HTTP_200_OK)
+        return super(StateView, self).delete(request, *args, **kwargs)

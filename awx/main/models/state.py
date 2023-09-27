@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Ansible, Inc.
+# Copyright (c) 2023 Ansible, Inc.
 # All Rights Reserved.
 
 # Django
@@ -17,19 +17,14 @@ class State(CreatedModifiedModel):
     class Meta:
         app_label = 'main'
 
-    workspace = models.CharField(
-        max_length=512,
-        unique=True,
-    )
-
     state = JSONBlob(
         default=dict,
         blank=True,
         editable=True,
     )
 
-    # def get_absolute_url(self, request=None):
-    #     return reverse('api:resource_state_detail', kwargs={'pk': self.pk}, request=request)
+    def get_absolute_url(self, request=None):
+        return reverse('api:state_detail', kwargs={'pk': self.pk}, request=request)
 
     def display_state(self):
         return parse_yaml_or_json(self.state, silent_failure=False)

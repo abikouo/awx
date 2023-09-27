@@ -6008,10 +6008,8 @@ class StateSerializer(BaseSerializer):
         model = State
         fields = (
             '*',
-            "workspace",
             "-id",
             "state",
-            "-name",
             "-description",
             "-related",
             "-summary_fields",
