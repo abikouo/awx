@@ -6009,6 +6009,7 @@ class StateSerializer(BaseSerializer):
         fields = (
             '*',
             "-id",
+            "-name",
             "state",
             "-description",
             "-related",
