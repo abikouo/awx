@@ -3,15 +3,12 @@
 
 from django.urls import re_path
 
-from awx.api.views import (
-    StateList,
-    StateView,
-)
+import awx.api.views.state as state
 
 
 urls = [
-    re_path(r'^$', StateList.as_view(), name='state_list'),
-    re_path(r'^(?P<pk>[0-9]+)/$', StateView.as_view(), name='state_detail'),
+    re_path(r'^$', state.StateList.as_view(), name='state_list'),
+    re_path(r'^(?P<pk>[0-9]+)/$', state.StateView.as_view(), name='state_detail'),
 ]
 
 __all__ = ['urls']

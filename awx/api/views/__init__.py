@@ -4350,32 +4350,3 @@ class WorkflowApprovalDeny(RetrieveAPIView):
             return Response({"error": _("This workflow step has already been approved or denied.")}, status=status.HTTP_400_BAD_REQUEST)
         obj.deny(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class StateList(ListCreateAPIView):
-    model = models.State
-    serializer_class = serializers.StateSerializer
-
-
-class StateView(RetrieveUpdateDestroyAPIView):
-    name = _("State")
-    model = models.State
-    serializer_class = serializers.StateSerializer
-
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object()
-        state = obj.display_state()
-        if not state:
-            # terraform http client is expecting '404' response instead of
-            # an empty dict
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(state)
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object()
-        obj.state = request.data
-        obj.save(update_fields=['state'])
-        return Response({"pk": obj.pk}, status=status.HTTP_200_OK)
-
-    def delete(self, request, *args, **kwargs):
-        return super(StateView, self).delete(request, *args, **kwargs)
