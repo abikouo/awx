@@ -84,6 +84,9 @@ from awx.main.models.workflow import (  # noqa
     WorkflowApproval,
     WorkflowApprovalTemplate,
 )
+from awx.main.models.state import (  # noqa
+    State,
+)
 from awx.api.versioning import reverse
 from awx.main.models.oauth import OAuth2AccessToken, OAuth2Application  # noqa
 from oauth2_provider.models import Grant, RefreshToken  # noqa -- needed django-oauth-toolkit model migrations
