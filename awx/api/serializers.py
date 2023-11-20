@@ -6011,6 +6011,7 @@ class StateSerializer(BaseSerializer):
             "-id",
             "-name",
             "state",
+            "lock_info",
             "-description",
             "-related",
             "-summary_fields",
