@@ -6008,7 +6008,6 @@ class StateSerializer(BaseSerializer):
         model = State
         fields = (
             '*',
-            "-id",
             "-name",
             "state",
             "lock_info",

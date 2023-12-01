@@ -18,11 +18,10 @@ description:
     - Create, update, or destroy Automation Platform Controller state. See
       U(https://www.ansible.com/tower) for an overview.
 options:
-    id:
+    state_id:
       description:
-        - The id of the state to delete.
-        - Ignored when I(state=present).
-      type: str
+        - ID of the resource state
+      type: int
     state_info:
       description:
         - The information to store into the state resource.
@@ -51,13 +50,13 @@ EXAMPLES = '''
 
 - name: Update existing state resource (remove lock info)
   host:
-    id: 3
+    state_id: 7
     lock_info: {}
-    state: exists
+    state: present
 
 - name: Delete state resource
   host:
-    id: 3
+    state_id: 7
     state: absent
 '''
 
@@ -68,30 +67,40 @@ from ..module_utils.controller_api import ControllerAPIModule
 def main():
     # Any additional arguments that are not fields of the item can be added here
     argument_spec = dict(
-        id=dict(),
-        new_name=dict(),
+        state_id=dict(type="int"),
         state_info=dict(type='dict'),
         lock_info=dict(type='dict'),
         state=dict(choices=['present', 'absent', 'exists'], default='present'),
     )
 
-    required_if = ([("state", "absent", ["id"]), ("state", "exists", ["id"])],)
-
     # Create a module for ourselves
+    required_if = [("state", "absent", ["state_id"]), ("state", "exists", ["state_id"])]
     module = ControllerAPIModule(argument_spec=argument_spec, required_if=required_if)
 
     # Extract our parameters
-    id = module.params.get('id')
+    state_id = module.params.get('state_id')
     state_info = module.params.get('state_info')
     lock_info = module.params.get('lock_info')
     state = module.params.get('state')
 
-    # Attempt to look up state based on the provided id
-    resource = module.get_one('state', name_or_id=id, check_exists=(state == 'exists'))
+    existing = None
+    if state_id is not None:
+        existing = module.get_one(
+            'state',
+            check_exists=(state == 'exists'),
+            **{
+                'data': {
+                    'id': state_id,
+                }
+            },
+        )
 
     if state == 'absent':
         # If the state was absent we can let the module delete it if needed, the module will handle exiting from this
-        module.delete_if_needed(resource)
+        module.delete_if_needed(existing)
+
+    if state_id is not None and not existing:
+        module.fail_json(msg=f"No state resource with Id '{state_id}'")
 
     state_fields = {}
     if state_info is not None:
@@ -100,7 +109,7 @@ def main():
         state_fields["lock_info"] = lock_info
 
     # If the state was present and we can let the module build or update the existing resource, this will return on its own
-    module.create_or_update_if_needed(resource, state_fields, endpoint='state', item_type='state')
+    module.create_or_update_if_needed(existing, state_fields, endpoint='state', item_type='state')
 
 
 if __name__ == '__main__':
